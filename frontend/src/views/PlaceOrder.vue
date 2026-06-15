@@ -25,7 +25,7 @@
       <!-- Takeout -->
       <fieldset v-if="form.order_type === 'takeout'" style="border:2px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;margin-top:8px">
         <legend style="font-weight:700;color:var(--primary);padding:0 6px">外卖信息</legend>
-        <div class="form-group"><label>外卖描述</label><input v-model="biz.item_desc" placeholder="如：一份黄焖鸡米饭" /></div>
+        <div class="form-group"><label>外卖描述</label><input v-model="biz.item_desc" placeholder="如：黄焖鸡米饭" /></div>
         <div class="form-group"><label>取餐地址</label><input v-model="biz.pickup_addr" placeholder="如：三食堂二楼" /></div>
         <div class="form-group"><label>数量</label><input v-model="biz.quantity" placeholder="如：2份"/></div>
         <div class="form-group"><label>备注</label><textarea v-model="biz.remark" rows="3" placeholder="如：不要辣、不要香菜、尽快送达"></textarea></div>
