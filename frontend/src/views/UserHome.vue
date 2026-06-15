@@ -1,12 +1,6 @@
 <template>
   <div>
-    <div class="page-header">
-      <h2>📦 我的订单</h2>
-      <div class="actions">
-        <router-link to="/user/place-order" class="btn btn-primary btn-sm">➕ 发布新订单</router-link>
-        <router-link v-if="userStore.userInfo?.rider" to="/rider/home" class="btn btn-outline btn-sm">🛵 骑手模式</router-link>
-      </div>
-    </div>
+    <NavTabs />
 
     <!-- Pending -->
     <div class="section-header"><h3>待接单</h3><span class="count-badge">{{ orders.pending.length }}</span></div>
@@ -83,6 +77,7 @@
 import { reactive, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
+import NavTabs from '../components/NavTabs.vue'
 
 const userStore = useUserStore()
 const orders = reactive({ pending: [], active: [], delivered: [], completed: [], cancelled: [] })
