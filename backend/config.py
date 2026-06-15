@@ -14,6 +14,16 @@ DATABASE_URL = os.getenv(
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 SESSION_EXPIRE_SECONDS = 3600  # 1 hour
 
+# Server
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", "8000"))
+
+# CORS - comma-separated origins, e.g. "http://locahost:5173,https://yourdomain.com"
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://localhost:8000"
+).split(",")
+
 # App
 APP_TITLE = "校园跑腿平台"
 APP_VERSION = "1.0.0"

@@ -65,7 +65,37 @@ npm install
 
 ## 三、启动项目
 
-### 3.1 启动后端 API
+### 方式一：Docker 一键部署（推荐 Linux 生产环境）
+
+```bash
+# 1. 复制并编辑环境变量（可选，默认值可直接使用）
+cp .env.example .env
+
+# 2. 构建并启动所有服务（MySQL + Backend + Frontend）
+docker compose up -d
+
+# 3. 访问
+# http://localhost   （默认 80 端口）
+```
+
+首次启动会自动建表，3 个容器协同工作：
+
+| 容器 | 端口 | 说明 |
+|------|------|------|
+| campus_db | 3306（容器内部） | MySQL 8.0，数据持久化在 `mysql_data` 卷 |
+| campus_backend | 8000 | FastAPI JSON API |
+| campus_frontend | 80（可改为 8080） | nginx 托管 Vue 3 静态文件 + `/api` 代理 |
+
+**常用命令：**
+```bash
+docker compose down              # 停止所有服务
+docker compose logs -f backend   # 查看后端日志
+docker compose up -d --build     # 重新构建并启动
+```
+
+### 方式二：本地开发启动
+
+#### 3.2.1 启动后端 API
 
 ```bash
 cd backend
@@ -81,7 +111,7 @@ INFO:     Application startup complete.
 
 后端启动时会**自动创建所有数据库表**，无需手动迁移。
 
-### 3.2 启动前端开发服务器
+#### 3.2.2 启动前端开发服务器
 
 ```bash
 cd frontend
@@ -93,7 +123,7 @@ VITE v5.x  ready in xxx ms
 ➜  Local:   http://localhost:5173/
 ```
 
-### 3.3 访问系统
+#### 3.2.3 访问系统
 
 打开浏览器访问 **http://localhost:5173**
 

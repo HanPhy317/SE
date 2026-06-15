@@ -1,0 +1,48 @@
+services:
+  # ========== MySQL 8.0 ==========
+  db:
+    image: mysql:8.0
+    container_name: campus_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: campus_errand_db
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== FastAPI Backend ==========
+  backend:
+    build: ./backend
+    container_name: campus_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+aiomysql://root:${MYSQL_ROOT_PASSWORD:-root}@db:3306/campus_errand_db
+      SECRET_KEY: ${SECRET_KEY:-linux-prod-secret-key-change-me}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:8000}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ========== Vue 3 Frontend (nginx) ==========
+  frontend:
+    build: ./frontend
+    container_name: campus_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

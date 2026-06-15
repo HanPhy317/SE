@@ -121,9 +121,28 @@ def test():
     print(f"  alice balance: {d.get('data',{}).get('balance')}")
     print(f"  alice is_rider: {d.get('data',{}).get('rider') is not None}")
 
+    # 11. Update profile (alice)
+    print("\n=== 11. Update Profile ===")
+    r = requests.put(f"{BASE}/auth/profile", json={
+        "phone": "138001",
+        "default_address": "北校区宿舍3号楼501"
+    }, headers=auth_header())
+    d = r.json()
+    print(f"  Update profile: {d.get('message')}")
+    print(f"  new address: {d.get('data',{}).get('default_address')}")
+
+    # 12. Topup (alice)
+    print("\n=== 12. Topup ===")
+    r = requests.post(f"{BASE}/auth/topup", json={
+        "amount": 50.00
+    }, headers=auth_header())
+    d = r.json()
+    print(f"  Topup: {d.get('message')}")
+    print(f"  new balance: {d.get('data',{}).get('balance')}")
+
     print("\n================================================")
     print(f"  ALL {sum(results)}/3 REGISTRATIONS PASSED")
-    print(f"  FULL WORKFLOW COMPLETED")
+    print(f"  FULL WORKFLOW COMPLETED (incl. profile update + topup)")
     print("================================================")
 
 

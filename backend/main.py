@@ -10,9 +10,8 @@ Architecture:
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-from config import APP_TITLE, APP_VERSION
+from config import APP_TITLE, APP_VERSION, CORS_ORIGINS, HOST, PORT
 from database import engine, init_db
 from routes.auth import auth_router
 from routes.orders import order_router
@@ -26,16 +25,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION, lifespan=lifespan)
 
-# CORS for Vue 3 dev server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# API Routers
 app.include_router(auth_router)
 app.include_router(order_router)
 
@@ -47,4 +44,4 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host=HOST, port=PORT, reload=True)

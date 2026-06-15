@@ -61,6 +61,30 @@ export const useUserStore = defineStore('user', () => {
     return res
   }
 
+  async function updateProfile(data) {
+    const res = await api('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      userInfo.value = { ...userInfo.value, ...res.data }
+      localStorage.setItem('user', JSON.stringify(userInfo.value))
+    }
+    return res
+  }
+
+  async function topup(amount) {
+    const res = await api('/auth/topup', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    })
+    if (res.ok) {
+      userInfo.value = { ...userInfo.value, balance: res.data.balance }
+      localStorage.setItem('user', JSON.stringify(userInfo.value))
+    }
+    return res
+  }
+
   function logout() {
     token.value = ''
     userInfo.value = null
@@ -68,5 +92,5 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('user')
   }
 
-  return { token, userInfo, isLoggedIn, isRider, login, register, fetchProfile, becomeRider, logout }
+  return { token, userInfo, isLoggedIn, isRider, login, register, fetchProfile, becomeRider, updateProfile, topup, logout }
 })

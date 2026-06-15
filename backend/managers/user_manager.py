@@ -162,3 +162,56 @@ class UserManager:
         if not rider:
             return False, "骑手不存在", None
         return True, "查询成功", rider
+
+    @staticmethod
+    async def update_profile(
+        db: AsyncSession,
+        user_id: int,
+        phone: str | None = None,
+        default_address: str | None = None,
+    ) -> tuple[bool, str, User | None]:
+        """Update user profile fields. Returns (success, message, user)."""
+        result = await db.execute(
+            select(User).where(User.user_id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        if not user:
+            return False, "用户不存在", None
+
+        if phone is not None and phone != user.phone:
+            # Check phone uniqueness
+            result = await db.execute(
+                select(User).where(User.phone == phone, User.user_id != user_id)
+            )
+            if result.scalar_one_or_none():
+                return False, "手机号已被其他用户使用", None
+            user.phone = phone
+
+        if default_address is not None:
+            user.default_address = default_address
+
+        await db.commit()
+        await db.refresh(user)
+        return True, "信息更新成功", user
+
+    @staticmethod
+    async def topup(
+        db: AsyncSession,
+        user_id: int,
+        amount: float,
+    ) -> tuple[bool, str, float]:
+        """Top up user balance. Returns (success, message, new_balance)."""
+        if amount <= 0:
+            return False, "充值金额必须大于0", 0.0
+
+        result = await db.execute(
+            select(User).where(User.user_id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        if not user:
+            return False, "用户不存在", 0.0
+
+        new_balance = float(user.balance) + amount
+        user.balance = new_balance
+        await db.commit()
+        return True, f"充值成功，当前余额 ¥{new_balance:.2f}", new_balance

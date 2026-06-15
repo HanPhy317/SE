@@ -30,6 +30,15 @@ class BecomeRiderReq(BaseModel):
     service_area: str
 
 
+class UpdateProfileReq(BaseModel):
+    phone: str | None = None
+    default_address: str | None = None
+
+
+class TopupReq(BaseModel):
+    amount: float
+
+
 # ---------- Auth Endpoints ----------
 @auth_router.post("/register")
 async def register(req: RegisterReq, db: AsyncSession = Depends(get_db)):
@@ -130,3 +139,45 @@ async def become_rider(
         "rider_id": rider_obj.rider_id,
         "service_area": rider_obj.service_area,
     }, message="注册骑手成功")
+
+
+@auth_router.put("/profile")
+async def update_profile(
+    req: UpdateProfileReq,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """修改个人信息（手机号、默认地址）"""
+    success, msg, user_obj = await UserManager.update_profile(
+        db, user["user_id"],
+        phone=req.phone,
+        default_address=req.default_address,
+    )
+    if not success:
+        return fail(msg)
+
+    return ok({
+        "user_id": user_obj.user_id,
+        "username": user_obj.username,
+        "phone": user_obj.phone,
+        "default_address": user_obj.default_address,
+        "balance": float(user_obj.balance),
+    }, message=msg)
+
+
+@auth_router.post("/topup")
+async def topup(
+    req: TopupReq,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """账户充值"""
+    success, msg, new_balance = await UserManager.topup(
+        db, user["user_id"], req.amount
+    )
+    if not success:
+        return fail(msg)
+
+    return ok({
+        "balance": round(new_balance, 2),
+    }, message=msg)
