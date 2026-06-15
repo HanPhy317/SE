@@ -1,6 +1,6 @@
 <template>
   <div class="auth-page">
-    <span class="hero-icon">🏃</span>
+    <img src="/WHU.webp" alt="WHU" class="hero-logo" />
     <h2>校园跑腿平台</h2>
     <p class="subtitle">登录后开始使用</p>
     <form @submit.prevent="handleLogin" class="auth-form">

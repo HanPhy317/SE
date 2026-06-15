@@ -1,47 +1,13 @@
 <template>
   <div>
-    <div class="page-header">
-      <h2>📦 我的订单</h2>
-      <div style="margin:15px 0;">
-  <button
-    class="btn btn-sm"
-    @click="currentType='all'"
-  >
-    全部
-  </button>
+    <NavTabs />
 
-  <button
-    class="btn btn-sm"
-    @click="currentType='takeout'"
-  >
-    外卖
-  </button>
-
-  <button
-    class="btn btn-sm"
-    @click="currentType='express'"
-  >
-    快递
-  </button>
-
-  <button
-    class="btn btn-sm"
-    @click="currentType='shopping'"
-  >
-    代买
-  </button>
-
-  <button
-    class="btn btn-sm"
-    @click="currentType='custom'"
-  >
-    自定义
-  </button>
-</div>
-      <div class="actions">
-        <router-link to="/user/place-order" class="btn btn-primary btn-sm">➕ 发布新订单</router-link>
-        <router-link v-if="userStore.userInfo?.rider" to="/rider/home" class="btn btn-outline btn-sm">🛵 骑手模式</router-link>
-      </div>
+    <div style="margin:15px 0;">
+      <button class="btn btn-sm" @click="currentType='all'">全部</button>
+      <button class="btn btn-sm" @click="currentType='takeout'">外卖</button>
+      <button class="btn btn-sm" @click="currentType='express'">快递</button>
+      <button class="btn btn-sm" @click="currentType='shopping'">代买</button>
+      <button class="btn btn-sm" @click="currentType='custom'">自定义</button>
     </div>
 
     <!-- Pending -->
@@ -131,6 +97,7 @@
 import { reactive, onMounted, ref } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
+import NavTabs from '../components/NavTabs.vue'
 
 const userStore = useUserStore()
 const orders = reactive({ pending: [], active: [], delivered: [], completed: [], cancelled: [] })

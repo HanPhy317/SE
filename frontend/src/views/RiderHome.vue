@@ -1,15 +1,9 @@
 <template>
   <div>
-    <div class="page-header">
-      <h2>📋 骑手订单大厅</h2>
-      <div class="actions">
-        <router-link to="/user/home" class="btn btn-ghost btn-sm">切换用户</router-link>
-      </div>
-    </div>
+    <NavTabs />
 
     <!-- Rider Stats -->
     <div class="rider-stats" v-if="userStore.userInfo?.rider">
-      <div class="stat-card"><span class="v">{{ rating }}</span><span class="l">评分</span></div>
       <div class="stat-card"><span class="v">{{ completed }}</span><span class="l">已完成</span></div>
       <div class="stat-card"><span class="v">{{ userStore.userInfo?.rider?.service_area || '-' }}</span><span class="l">服务区域</span></div>
     </div>
@@ -78,13 +72,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
+import NavTabs from '../components/NavTabs.vue'
 
 const userStore = useUserStore()
 const pendingOrders = ref([])
 const myActive = ref([])
 const myCompleted = ref([])
 
-const rating = computed(() => userStore.userInfo?.rider?.credit_score || 5.0)
 const completed = computed(() => userStore.userInfo?.rider?.total_orders || 0)
 
 async function loadData() {
