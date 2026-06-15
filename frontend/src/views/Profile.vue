@@ -78,7 +78,7 @@
       </form>
     </div>
 
-    <router-link v-if="isRider" to="/rider/home" class="btn btn-primary btn-block" style="margin-top:12px">前往骑手大厅</router-link>
+
   </div>
 </template>
 

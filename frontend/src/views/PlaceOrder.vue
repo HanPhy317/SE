@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div class="page-header">
-      <h2>➕ 发布新订单</h2>
-      <router-link to="/user/home" class="btn btn-ghost btn-sm">返回</router-link>
-    </div>
+    <NavTabs />
 
     <form @submit.prevent="handleSubmit" class="card" style="padding:20px">
       <div class="form-group">
@@ -68,6 +65,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api'
+import NavTabs from '../components/NavTabs.vue'
 
 const router = useRouter()
 const loading = ref(false)
