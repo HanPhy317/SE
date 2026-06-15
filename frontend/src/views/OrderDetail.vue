@@ -33,6 +33,8 @@
         <h3>🍱 外卖信息</h3>
         <p><b>外卖描述：</b>{{ order.biz_fields?.item_desc || '-' }}</p>
         <p><b>取餐地址：</b>{{ order.biz_fields?.pickup_addr || '-' }}</p>
+        <p><b>数量：</b>{{ order.biz_fields?.quantity || '-' }}</p>
+        <p><b>备注：</b>{{ order.biz_fields?.remark || '-' }}</p>
       </template>
 
       <template v-else-if="order.order_type === 'express'">
