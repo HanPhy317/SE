@@ -6,6 +6,8 @@
     <div class="rider-stats" v-if="userStore.userInfo?.rider">
       <div class="stat-card"><span class="v">{{ completed }}</span><span class="l">已完成</span></div>
       <div class="stat-card"><span class="v">{{ userStore.userInfo?.rider?.service_area || '-' }}</span><span class="l">服务区域</span></div>
+      <div class="stat-card"><span class="v">{{ avgRating }}</span><span class="l">平均评分</span></div>
+      <div class="stat-card"><span class="v">{{ praiseRate }}</span><span class="l">好评率</span></div>
     </div>
 
     <!-- Available orders -->
@@ -63,6 +65,10 @@
       <div class="order-card-body">
         <p class="order-reward">💰 ¥{{ o.reward.toFixed(2) }}</p>
         <p>✅ {{ fmtDate(o.completed_at) }}</p>
+        <p v-if="o.review" style="color:#F59E0B;font-size:0.9rem">
+          ⭐ {{ o.review.rating.toFixed(0) }}分
+          <span v-if="o.review.comment" style="color:var(--text-secondary);font-size:0.8rem">"{{ o.review.comment }}"</span>
+        </p>
       </div>
     </div>
   </div>
@@ -80,6 +86,14 @@ const myActive = ref([])
 const myCompleted = ref([])
 
 const completed = computed(() => userStore.userInfo?.rider?.total_orders || 0)
+const avgRating = computed(() => {
+  const score = userStore.userInfo?.rider?.credit_score
+  return score != null ? score.toFixed(1) : '-'
+})
+const praiseRate = computed(() => {
+  const rate = userStore.userInfo?.rider?.praise_rate
+  return rate != null ? Math.round(rate * 100) + '%' : '-'
+})
 
 async function loadData() {
   const [pRes, mRes] = await Promise.all([
@@ -103,5 +117,8 @@ function typeLabel(t) { return { takeout: '外卖', express: '快递', shopping:
 function statusLabel(s) { return { accepted: '已接单', delivering: '配送中', delivered: '已送达' }[s] || s }
 function fmtDate(d) { return d ? new Date(d).toLocaleString('zh-CN', { hour12: false }) : '-' }
 
-onMounted(loadData)
+onMounted(async () => {
+  await userStore.fetchProfile()
+  loadData()
+})
 </script>
