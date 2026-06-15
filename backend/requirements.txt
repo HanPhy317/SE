@@ -1,0 +1,14 @@
+# 校园跑腿平台 - Backend Dependencies
+# FastAPI JSON API + MySQL 8.0 + SQLAlchemy ORM
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+sqlalchemy[asyncio]>=2.0.0
+aiomysql>=0.2.0
+bcrypt>=4.0.0
+PyJWT>=2.8.0
+pydantic>=2.0.0
+python-multipart>=0.0.9  # form data parsing (optional, for testing)
+
+# Dev / Testing
+requests>=2.31.0
