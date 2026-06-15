@@ -69,18 +69,49 @@
         <p class="order-reward">💰 ¥{{ o.reward.toFixed(2) }}</p>
         <p>✅ {{ fmtDate(o.completed_at) }}</p>
       </div>
+      <div class="order-card-actions">
+        <button v-if="!o.review" class="btn btn-warning btn-sm" @click="openReview(o)">⭐ 评价</button>
+        <div v-else class="review-result">
+          <span class="review-stars">{{ '★'.repeat(o.review.rating) }}{{ '☆'.repeat(5 - o.review.rating) }}</span>
+          <p v-if="o.review.comment" class="review-comment-text">"{{ o.review.comment }}"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div v-if="reviewTarget" class="review-modal-overlay" @click.self="closeReview">
+      <div class="review-modal">
+        <h3>⭐ 订单评价</h3>
+        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:16px">订单号：{{ reviewTarget.order_no }}</p>
+        <div class="star-rating">
+          <span v-for="s in 5" :key="s" class="star" :class="{ active: s <= reviewRating }" @click="setRating(s)">{{ s <= reviewRating ? '★' : '☆' }}</span>
+        </div>
+        <textarea v-model="reviewComment" class="review-textarea" placeholder="写下你的评价（可选，最多512字）" maxlength="512" rows="3"></textarea>
+        <div class="review-modal-actions">
+          <button class="btn btn-ghost" @click="closeReview">取消</button>
+          <button class="btn btn-warning" :disabled="reviewRating === 0 || reviewLoading" @click="submitReview">
+            {{ reviewLoading ? '提交中...' : '提交评价' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
 import NavTabs from '../components/NavTabs.vue'
 
 const userStore = useUserStore()
 const orders = reactive({ pending: [], active: [], delivered: [], completed: [], cancelled: [] })
+
+// Review state
+const reviewTarget = ref(null)
+const reviewRating = ref(0)
+const reviewComment = ref('')
+const reviewLoading = ref(false)
 
 async function loadOrders() {
   const res = await api('/orders/my')
@@ -119,5 +150,130 @@ function statusLabel(s) {
 
 function fmtDate(d) { return d ? new Date(d).toLocaleString('zh-CN', { hour12: false }) : '-' }
 
+function openReview(order) {
+  reviewTarget.value = order
+  reviewRating.value = 0
+  reviewComment.value = ''
+}
+
+function closeReview() {
+  reviewTarget.value = null
+}
+
+function setRating(v) {
+  reviewRating.value = v
+}
+
+async function submitReview() {
+  if (reviewRating.value === 0) return
+  reviewLoading.value = true
+  const res = await api('/reviews/create', {
+    method: 'POST',
+    body: JSON.stringify({
+      order_id: reviewTarget.value.order_id,
+      rating: reviewRating.value,
+      comment: reviewComment.value || null,
+    }),
+  })
+  reviewLoading.value = false
+  if (res.ok) {
+    window.$toast('评价成功！', 'success')
+    closeReview()
+    loadOrders()
+  } else {
+    window.$toast(res.message)
+  }
+}
+
 onMounted(loadOrders)
 </script>
+
+<style scoped>
+.review-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.review-modal {
+  background: var(--bg-primary,#fff);
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.review-modal h3 {
+  margin: 0 0 4px 0;
+}
+.star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+.star {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.15s;
+  user-select: none;
+}
+.star.active {
+  color: #F59E0B;
+}
+.review-textarea {
+  width: 100%;
+  border: 1px solid var(--border-color,#ddd);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.review-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.badge-reviewed {
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+.btn-warning {
+  background: #F59E0B;
+  color: #fff;
+  border: none;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-color,#ddd);
+  color: var(--text-secondary,#666);
+}
+.review-result {
+  text-align: center;
+  padding: 4px 0;
+}
+.review-stars {
+  color: #F59E0B;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+.review-comment-text {
+  color: var(--text-secondary,#888);
+  font-size: 0.85rem;
+  margin: 4px 0 0 0;
+  font-style: italic;
+}
+</style>
