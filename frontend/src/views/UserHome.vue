@@ -2,10 +2,18 @@
   <div>
     <NavTabs />
 
+    <div style="margin:15px 0;">
+      <button class="btn btn-sm" @click="currentType='all'">全部</button>
+      <button class="btn btn-sm" @click="currentType='takeout'">外卖</button>
+      <button class="btn btn-sm" @click="currentType='express'">快递</button>
+      <button class="btn btn-sm" @click="currentType='shopping'">代买</button>
+      <button class="btn btn-sm" @click="currentType='custom'">自定义</button>
+    </div>
+
     <!-- Pending -->
     <div class="section-header"><h3>待接单</h3><span class="count-badge">{{ orders.pending.length }}</span></div>
     <div v-if="orders.pending.length === 0" class="empty-state"><span class="icon">📭</span><p>暂无待接单订单</p></div>
-    <div class="order-card st-pending" v-for="o in orders.pending" :key="o.order_id">
+    <div class="order-card st-pending" v-for="o in filterOrders(orders.pending)" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
         <span class="badge badge-type">{{ typeLabel(o.order_type) }}</span>
@@ -17,6 +25,7 @@
         <p>🕒 {{ fmtDate(o.created_at) }}</p>
       </div>
       <div class="order-card-actions">
+        <router-link :to="'/orders/' + o.order_id" class="btn btn-outline btn-sm">查看详情</router-link>
         <button class="btn btn-danger btn-sm" @click="cancelOrder(o.order_id)">取消订单</button>
       </div>
     </div>
@@ -24,7 +33,7 @@
     <!-- Active: accepted + delivering -->
     <div class="section-header" style="margin-top:24px"><h3>进行中</h3><span class="count-badge">{{ orders.active.length }}</span></div>
     <div v-if="orders.active.length === 0" class="empty-state"><span class="icon">🚚</span><p>暂无进行中订单</p></div>
-    <div class="order-card" :class="'st-' + o.status" v-for="o in orders.active" :key="o.order_id">
+    <div class="order-card" :class="'st-' + o.status" v-for="o in filterOrders(orders.active)" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
         <span class="badge badge-type">{{ typeLabel(o.order_type) }}</span>
@@ -34,16 +43,27 @@
         <p>📍 {{ o.delivery_addr }}</p>
         <p class="order-reward">💰 ¥{{ o.reward.toFixed(2) }}</p>
       </div>
-      <div class="order-card-actions" v-if="o.status === 'delivered'">
-        <button class="btn btn-success btn-sm" @click="confirmDelivery(o.order_id)">✅ 确认收货并结算</button>
-      </div>
+      <div class="order-card-actions">
+  <router-link
+    :to="'/orders/' + o.order_id"
+    class="btn btn-outline btn-sm"
+  >
+    查看详情
+  </router-link>
+
+  <button
+    v-if="o.status === 'delivered'"
+    class="btn btn-success btn-sm"
+    @click="confirmDelivery(o.order_id)"
+  >✅ 确认收货并结算</button>
+</div>
     </div>
 
     <!-- Delivered (waiting confirm) -->
     <div class="section-header" style="margin-top:24px" v-if="orders.delivered.length > 0">
       <h3>已送达待确认</h3><span class="count-badge">{{ orders.delivered.length }}</span>
     </div>
-    <div class="order-card st-delivered" v-for="o in orders.delivered" :key="o.order_id">
+    <div class="order-card st-delivered" v-for="o in filterOrders(orders.delivered)" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
         <span class="badge badge-delivered">已送达</span>
@@ -58,7 +78,7 @@
 
     <!-- Completed -->
     <div class="section-header" style="margin-top:24px"><h3>已完成</h3><span class="count-badge">{{ orders.completed.length }}</span></div>
-    <div class="order-card st-completed" v-for="o in orders.completed" :key="o.order_id">
+    <div class="order-card st-completed" v-for="o in filterOrders(orders.completed)" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
         <span class="badge badge-type">{{ typeLabel(o.order_type) }}</span>
@@ -99,6 +119,7 @@
 </template>
 
 <script setup>
+
 import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
@@ -106,6 +127,7 @@ import NavTabs from '../components/NavTabs.vue'
 
 const userStore = useUserStore()
 const orders = reactive({ pending: [], active: [], delivered: [], completed: [], cancelled: [] })
+const currentType = ref('all')
 
 // Review state
 const reviewTarget = ref(null)
@@ -146,6 +168,16 @@ function typeLabel(t) {
 function statusLabel(s) {
   const m = { pending: '待接单', accepted: '已接单', delivering: '配送中', delivered: '已送达', completed: '已完成' }
   return m[s] || s
+}
+
+function filterOrders(list) {
+  if (currentType.value === 'all') {
+    return list
+  }
+
+  return list.filter(
+    o => o.order_type === currentType.value
+  )
 }
 
 function fmtDate(d) { return d ? new Date(d).toLocaleString('zh-CN', { hour12: false }) : '-' }
