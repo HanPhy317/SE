@@ -7,6 +7,7 @@ import PlaceOrder from '../views/PlaceOrder.vue'
 import RiderHome from '../views/RiderHome.vue'
 import AcceptOrder from '../views/AcceptOrder.vue'
 import Profile from '../views/Profile.vue'
+import OrderDetail from '../views/OrderDetail.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -17,6 +18,7 @@ const routes = [
   { path: '/rider/home', component: RiderHome, meta: { requiresAuth: true } },
   { path: '/rider/accept/:id', component: AcceptOrder, meta: { requiresAuth: true }, props: true },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+  { path: '/orders/:id', component: OrderDetail, meta: { requiresAuth: true }, props: true },
 ]
 
 const router = createRouter({ history: createWebHashHistory(), routes })
