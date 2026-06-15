@@ -54,6 +54,23 @@ async def my_orders(
     completed = [serialize(o) for o in orders if o.status == "completed"]
     cancelled = [serialize(o) for o in orders if o.status == "cancelled"]
 
+    # Attach review data for completed orders
+    from models.review import Review
+    from sqlalchemy import select as sa_select
+    completed_ids = [c["order_id"] for c in completed]
+    if completed_ids:
+        result = await db.execute(
+            sa_select(Review).where(Review.order_id.in_(completed_ids))
+        )
+        reviews = {r.order_id: r for r in result.scalars().all()}
+        for c in completed:
+            r = reviews.get(c["order_id"])
+            c["review"] = {
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            } if r else None
+
     return ok({
         "pending": pending,
         "active": active,
@@ -121,6 +138,23 @@ async def rider_orders(
 
     active = [serialize(o) for o in orders if o.status in ("accepted", "delivering", "delivered")]
     completed = [serialize(o) for o in orders if o.status == "completed"]
+
+    # Attach review data for completed orders
+    from models.review import Review
+    completed_ids = [c["order_id"] for c in completed]
+    if completed_ids:
+        result_r = await db.execute(
+            select(Review).where(Review.order_id.in_(completed_ids))
+        )
+        reviews = {r.order_id: r for r in result_r.scalars().all()}
+        for c in completed:
+            r = reviews.get(c["order_id"])
+            c["review"] = {
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            } if r else None
+
     return ok({"active": active, "completed": completed})
 
 
