@@ -26,6 +26,7 @@
       </div>
       <div class="order-card-actions">
         <router-link :to="'/orders/' + o.order_id" class="btn btn-outline btn-sm">查看详情</router-link>
+        <button v-if="o.rider_id" class="btn btn-outline btn-sm" @click="openChat(o)">聊天</button>
         <button class="btn btn-danger btn-sm" @click="cancelOrder(o.order_id)">取消订单</button>
       </div>
     </div>
@@ -52,6 +53,14 @@
   </router-link>
 
   <button
+    v-if="o.rider_id"
+    class="btn btn-outline btn-sm"
+    @click="openChat(o)"
+  >
+    聊天
+  </button>
+
+  <button
     v-if="o.status === 'delivered'"
     class="btn btn-success btn-sm"
     @click="confirmDelivery(o.order_id)"
@@ -72,6 +81,7 @@
         <p class="order-reward">💰 ¥{{ o.reward.toFixed(2) }}</p>
       </div>
       <div class="order-card-actions">
+        <button v-if="o.rider_id" class="btn btn-outline btn-sm" @click="openChat(o)">聊天</button>
         <button class="btn btn-success btn-sm" @click="confirmDelivery(o.order_id)">✅ 确认收货并结算</button>
       </div>
     </div>
@@ -115,6 +125,14 @@
         </div>
       </div>
     </div>
+
+    <OrderChat
+      v-if="chatTarget"
+      :open="!!chatTarget"
+      :order-id="chatTarget.order_id"
+      :order-no="chatTarget.order_no"
+      @close="closeChat"
+    />
   </div>
 </template>
 
@@ -124,6 +142,7 @@ import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
 import NavTabs from '../components/NavTabs.vue'
+import OrderChat from '../components/OrderChat.vue'
 
 const userStore = useUserStore()
 const orders = reactive({ pending: [], active: [], delivered: [], completed: [], cancelled: [] })
@@ -134,6 +153,7 @@ const reviewTarget = ref(null)
 const reviewRating = ref(0)
 const reviewComment = ref('')
 const reviewLoading = ref(false)
+const chatTarget = ref(null)
 
 async function loadOrders() {
   const res = await api('/orders/my')
@@ -190,6 +210,14 @@ function openReview(order) {
 
 function closeReview() {
   reviewTarget.value = null
+}
+
+function openChat(order) {
+  chatTarget.value = order
+}
+
+function closeChat() {
+  chatTarget.value = null
 }
 
 function setRating(v) {
