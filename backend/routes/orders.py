@@ -9,6 +9,7 @@ from managers.order_manager import OrderManager
 from managers.user_manager import UserManager
 from utils.api import ok, fail
 from utils.auth_dep import get_current_user
+from services.notification_service import publish_order_event
 
 order_router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -202,6 +203,7 @@ async def create_order(
     if not success:
         return fail(message)
 
+    await publish_order_event(db, "order_created", order, "有新的跑腿订单可接")
     return ok({
         "order_id": order.order_id,
         "order_no": order.order_no,
@@ -228,6 +230,8 @@ async def accept_order(
     if not success:
         return fail(msg)
 
+    order = await OrderManager.get_order_by_id(db, order_id)
+    await publish_order_event(db, "order_accepted", order, "您的订单已被骑手接单")
     return ok(None, message="接单成功")
 
 
@@ -242,6 +246,8 @@ async def update_status(
     success, msg = await OrderManager.update_status(db, order_id, status)
     if not success:
         return fail(msg)
+    order = await OrderManager.get_order_by_id(db, order_id)
+    await publish_order_event(db, "order_status_changed", order, "订单配送状态已更新")
     return ok(None, message="状态更新成功")
 
 
@@ -255,6 +261,8 @@ async def cancel_order(
     success, msg = await OrderManager.cancel(db, order_id)
     if not success:
         return fail(msg)
+    order = await OrderManager.get_order_by_id(db, order_id)
+    await publish_order_event(db, "order_cancelled", order, "订单已取消")
     return ok(None, message="订单已取消")
 
 
@@ -268,4 +276,6 @@ async def complete_order(
     success, msg = await OrderManager.complete(db, order_id)
     if not success:
         return fail(msg)
+    order = await OrderManager.get_order_by_id(db, order_id)
+    await publish_order_event(db, "order_completed", order, "订单已完成并结算")
     return ok(None, message="结算完成")

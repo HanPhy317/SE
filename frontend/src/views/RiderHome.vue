@@ -12,7 +12,7 @@
 
     <!-- Available orders -->
     <div class="section-header"><h3>🔥 可接订单</h3><span class="count-badge">{{ pendingOrders.length }}</span></div>
-    <div v-if="pendingOrders.length === 0" class="empty-state"><span class="icon">📭</span><p>暂无可接订单</p></div>
+    <div v-if="pendingOrders.length === 0" class="empty-state"><span class="icon">📭</span><p>暂无订单</p></div>
     <div class="order-card pulse" v-for="o in pendingOrders" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
@@ -37,7 +37,7 @@
 
     <!-- My active orders -->
     <div class="section-header" style="margin-top:24px"><h3>🚚 我的进行中订单</h3><span class="count-badge">{{ myActive.length }}</span></div>
-    <div v-if="myActive.length === 0" class="empty-state"><span class="icon">🚚</span><p>暂无进行中订单</p></div>
+    <div v-if="myActive.length === 0" class="empty-state"><span class="icon">🚚</span><p>暂无订单</p></div>
     <div class="order-card" :class="'st-' + o.status" v-for="o in myActive" :key="o.order_id">
       <div class="order-card-header">
         <span class="order-no">{{ o.order_no }}</span>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
 import NavTabs from '../components/NavTabs.vue'
@@ -105,7 +105,6 @@ const praiseRate = computed(() => {
   const rate = userStore.userInfo?.rider?.praise_rate
   return rate != null ? Math.round(rate * 100) + '%' : '-'
 })
-
 async function loadData() {
   const [pRes, mRes] = await Promise.all([
     api('/orders/pending'),
@@ -136,8 +135,12 @@ function typeLabel(t) { return { takeout: '外卖', express: '快递', shopping:
 function statusLabel(s) { return { accepted: '已接单', delivering: '配送中', delivered: '已送达' }[s] || s }
 function fmtDate(d) { return d ? new Date(d).toLocaleString('zh-CN', { hour12: false }) : '-' }
 
+function handleOrderNotification() { loadData() }
+
 onMounted(async () => {
+  window.addEventListener('order-notification', handleOrderNotification)
   await userStore.fetchProfile()
   loadData()
 })
+onUnmounted(() => window.removeEventListener('order-notification', handleOrderNotification))
 </script>

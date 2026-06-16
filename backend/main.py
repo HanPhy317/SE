@@ -17,6 +17,7 @@ from routes.auth import auth_router
 from routes.orders import order_router
 from routes.reviews import review_router
 from routes.admin import admin_router
+from routes.notifications import notification_router
 
 
 @asynccontextmanager
@@ -39,6 +40,7 @@ app.include_router(auth_router)
 app.include_router(order_router)
 app.include_router(review_router)
 app.include_router(admin_router)
+app.include_router(notification_router)
 
 
 @app.get("/api/health")

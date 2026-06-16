@@ -9,6 +9,9 @@
     <router-link to="/user/home" class="nav-tab" :class="{ active: route.path === '/user/home' }">
       👤 用户模式
     </router-link>
+    <router-link to="/notifications" class="nav-tab" :class="{ active: route.path === '/notifications' }">
+      🔔 通知
+    </router-link>
     <router-link to="/user/place-order" class="nav-tab" :class="{ active: route.path === '/user/place-order' }">
       ➕ 发布新订单
     </router-link>

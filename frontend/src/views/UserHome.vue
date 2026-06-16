@@ -138,7 +138,7 @@
 
 <script setup>
 
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
 import NavTabs from '../components/NavTabs.vue'
@@ -245,7 +245,13 @@ async function submitReview() {
   }
 }
 
-onMounted(loadOrders)
+function handleOrderNotification() { loadOrders() }
+
+onMounted(() => {
+  window.addEventListener('order-notification', handleOrderNotification)
+  loadOrders()
+})
+onUnmounted(() => window.removeEventListener('order-notification', handleOrderNotification))
 </script>
 
 <style scoped>

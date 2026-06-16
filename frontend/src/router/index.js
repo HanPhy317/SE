@@ -9,6 +9,7 @@ import AcceptOrder from '../views/AcceptOrder.vue'
 import Profile from '../views/Profile.vue'
 import OrderDetail from '../views/OrderDetail.vue'
 import AdminHome from '../views/AdminHome.vue'
+import Notifications from '../views/Notifications.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -19,6 +20,7 @@ const routes = [
   { path: '/rider/home', component: RiderHome, meta: { requiresAuth: true } },
   { path: '/rider/accept/:id', component: AcceptOrder, meta: { requiresAuth: true }, props: true },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+  { path: '/notifications', component: Notifications, meta: { requiresAuth: true } },
   { path: '/orders/:id', component: OrderDetail, meta: { requiresAuth: true }, props: true },
   { path: '/admin/home', component: AdminHome, meta: { requiresAuth: true, requiresAdmin: true } },
 ]
