@@ -49,6 +49,7 @@
         <p class="order-reward">💰 ¥{{ o.reward.toFixed(2) }}</p>
       </div>
       <div class="order-card-actions">
+        <button class="btn btn-outline btn-sm" @click="openChat(o)">联系顾客</button>
         <button v-if="o.status === 'accepted'" class="btn btn-primary btn-sm" @click="updateStatus(o.order_id, 'delivering')">🚚 开始配送</button>
         <button v-if="o.status === 'delivering'" class="btn btn-success btn-sm" @click="updateStatus(o.order_id, 'delivered')">✅ 确认送达</button>
       </div>
@@ -71,6 +72,14 @@
         </p>
       </div>
     </div>
+
+    <OrderChat
+      v-if="chatTarget"
+      :open="!!chatTarget"
+      :order-id="chatTarget.order_id"
+      :order-no="chatTarget.order_no"
+      @close="closeChat"
+    />
   </div>
 </template>
 
@@ -79,11 +88,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { api } from '../api'
 import NavTabs from '../components/NavTabs.vue'
+import OrderChat from '../components/OrderChat.vue'
 
 const userStore = useUserStore()
 const pendingOrders = ref([])
 const myActive = ref([])
 const myCompleted = ref([])
+const chatTarget = ref(null)
 
 const completed = computed(() => userStore.userInfo?.rider?.total_orders || 0)
 const avgRating = computed(() => {
@@ -111,6 +122,14 @@ async function updateStatus(orderId, status) {
   const res = await api(`/orders/update_status?order_id=${orderId}&status=${status}`, { method: 'POST' })
   if (res.ok) { window.$toast('状态更新成功', 'success'); loadData() }
   else window.$toast(res.message)
+}
+
+function openChat(order) {
+  chatTarget.value = order
+}
+
+function closeChat() {
+  chatTarget.value = null
 }
 
 function typeLabel(t) { return { takeout: '外卖', express: '快递', shopping: '代买', custom: '自定义' }[t] || t }
