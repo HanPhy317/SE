@@ -18,6 +18,10 @@
       <p><b>创建时间：</b>{{ fmtDate(order.created_at) }}</p>
       <p v-if="order.completed_at"><b>完成时间：</b>{{ fmtDate(order.completed_at) }}</p>
 
+      <div v-if="order.rider_id" class="order-detail-actions">
+        <button class="btn btn-primary btn-sm" @click="chatOpen = true">联系骑手/跑腿者</button>
+      </div>
+
       <hr style="margin:16px 0" />
 
       <template v-if="order.order_type === 'shopping'">
@@ -50,6 +54,14 @@
         <p><b>截止时间：</b>{{ order.biz_fields?.deadline || '-' }}</p>
       </template>
     </div>
+
+    <OrderChat
+      v-if="order"
+      :open="chatOpen"
+      :order-id="order.order_id"
+      :order-no="order.order_no"
+      @close="chatOpen = false"
+    />
   </div>
 </template>
 
@@ -57,10 +69,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '../api'
+import OrderChat from '../components/OrderChat.vue'
 
 const route = useRoute()
 const loading = ref(true)
 const order = ref(null)
+const chatOpen = ref(false)
 
 async function loadDetail() {
   loading.value = true
