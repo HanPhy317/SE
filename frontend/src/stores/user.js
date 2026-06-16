@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref(JSON.parse(localStorage.getItem('user') || 'null'))
   const isLoggedIn = computed(() => !!token.value)
   const isRider = computed(() => userInfo.value?.role === 'rider')
+  const isAdmin = computed(() => userInfo.value?.role === 'admin')
 
   async function login(account, password, role = 'user') {
     const res = await api('/auth/login', {
@@ -92,5 +93,5 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('user')
   }
 
-  return { token, userInfo, isLoggedIn, isRider, login, register, fetchProfile, becomeRider, updateProfile, topup, logout }
+  return { token, userInfo, isLoggedIn, isRider, isAdmin, login, register, fetchProfile, becomeRider, updateProfile, topup, logout }
 })

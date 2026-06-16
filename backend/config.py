@@ -21,8 +21,11 @@ PORT = int(os.getenv("PORT", "8000"))
 # CORS - comma-separated origins, e.g. "http://locahost:5173,https://yourdomain.com"
 CORS_ORIGINS = os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:8000"
+    "http://localhost:5173,http://localhost:8000,http://campus-errand.demo:5173,http://campus-errand.demo"
 ).split(",")
+
+# Admin account (hardcoded, not stored in database)
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 # App
 APP_TITLE = "校园跑腿平台"

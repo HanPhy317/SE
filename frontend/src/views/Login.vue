@@ -12,13 +12,6 @@
         <label>密码</label>
         <input v-model="form.password" type="password" placeholder="请输入密码" required />
       </div>
-      <div class="form-group">
-        <label>登录角色</label>
-        <select v-model="form.role">
-          <option value="user">普通用户</option>
-          <option value="rider">骑手</option>
-        </select>
-      </div>
       <button class="btn btn-primary btn-block" :disabled="loading">
         {{ loading ? '登录中...' : '登录' }}
       </button>
@@ -35,14 +28,18 @@ import { useUserStore } from '../stores/user'
 const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
-const form = reactive({ account: '', password: '', role: 'user' })
+const form = reactive({ account: '', password: '' })
 
 async function handleLogin() {
   loading.value = true
-  const res = await userStore.login(form.account, form.password, form.role)
+  const res = await userStore.login(form.account, form.password, 'user')
   loading.value = false
   if (res.ok) {
-    router.push(form.role === 'rider' ? '/rider/home' : '/user/home')
+    if (res.data.role === 'admin') {
+      router.push('/admin/home')
+    } else {
+      router.push('/user/home')
+    }
   } else {
     window.$toast(res.message || '登录失败')
   }

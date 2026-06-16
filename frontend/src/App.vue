@@ -7,6 +7,7 @@
         <nav class="nav-links" v-if="userStore.isLoggedIn">
           <router-link to="/user/home">🏠 主页</router-link>
           <router-link to="/profile">👤 个人</router-link>
+          <router-link v-if="userStore.isAdmin" to="/admin/home">👑 管理</router-link>
           <span class="nav-user">{{ userStore.userInfo?.username }}</span>
           <a href="#" @click.prevent="doLogout" class="btn-logout">退出</a>
         </nav>
@@ -21,6 +22,7 @@
       <div class="mobile-panel">
         <router-link to="/user/home" @click="menuOpen = false">🏠 主页</router-link>
         <router-link to="/profile" @click="menuOpen = false">👤 个人</router-link>
+        <router-link v-if="userStore.isAdmin" to="/admin/home" @click="menuOpen = false">👑 管理后台</router-link>
         <div class="nav-divider"></div>
         <a href="#" @click.prevent="doLogout" class="logout-link">🚪 退出登录</a>
       </div>
@@ -35,6 +37,7 @@
     <nav class="bottom-nav" v-if="userStore.isLoggedIn">
       <router-link to="/user/home">🏠<span>主页</span></router-link>
       <router-link to="/profile">👤<span>个人</span></router-link>
+      <router-link v-if="userStore.isAdmin" to="/admin/home">👑<span>管理</span></router-link>
     </nav>
 
     <!-- Toast -->

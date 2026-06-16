@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from database import get_db
 from managers.user_manager import UserManager
+from config import ADMIN_PASSWORD
 from models.rider import Rider
 from utils.jwt_util import create_token
 from utils.api import ok, fail
@@ -62,6 +63,18 @@ async def register(req: RegisterReq, db: AsyncSession = Depends(get_db)):
 @auth_router.post("/login")
 async def login(req: LoginReq, db: AsyncSession = Depends(get_db)):
     """用户登录"""
+    # Admin login bypass (hardcoded account, not in database)
+    if req.account == "admin":
+        if req.password != ADMIN_PASSWORD:
+            return fail("管理员密码错误", code=401)
+        token = create_token(user_id=0, username="admin", role="admin")
+        return ok({
+            "token": token,
+            "user_id": 0,
+            "username": "admin",
+            "role": "admin",
+        }, message="管理员登录成功")
+
     success, message, user = await UserManager.login(
         db, account=req.account, password=req.password
     )

@@ -1,7 +1,7 @@
 """User model - users table"""
 
 from datetime import datetime
-from sqlalchemy import String, DateTime, Numeric, BigInteger
+from sqlalchemy import Boolean, String, DateTime, Numeric, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -20,6 +20,7 @@ class User(Base):
         Numeric(10, 2), nullable=False, default=0.00
     )
     default_address: Mapped[str | None] = mapped_column(String(256), default=None)
+    is_banned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow
     )

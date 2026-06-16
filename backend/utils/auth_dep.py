@@ -27,3 +27,29 @@ async def get_current_user(
             detail={"code": 401, "message": "登录已过期，请重新登录"}
         )
     return payload
+
+
+async def require_admin(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """FastAPI dependency: validate JWT and check for admin role."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail={"code": 401, "message": "请先登录"}
+        )
+
+    payload = decode_token(credentials.credentials)
+    if payload is None:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail={"code": 401, "message": "登录已过期，请重新登录"}
+        )
+
+    if payload.get("role") != "admin":
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail={"code": 403, "message": "权限不足，需要管理员权限"}
+        )
+
+    return payload

@@ -16,6 +16,7 @@ from database import engine, init_db
 from routes.auth import auth_router
 from routes.orders import order_router
 from routes.reviews import review_router
+from routes.admin import admin_router
 
 
 @asynccontextmanager
@@ -37,6 +38,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(order_router)
 app.include_router(review_router)
+app.include_router(admin_router)
 
 
 @app.get("/api/health")

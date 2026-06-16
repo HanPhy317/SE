@@ -78,6 +78,9 @@ class UserManager:
         ):
             return False, "密码错误", None
 
+        if user.is_banned:
+            return False, "账号已被封禁，请联系管理员", None
+
         return True, "登录成功", user
 
     @staticmethod
